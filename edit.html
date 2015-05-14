@@ -1,0 +1,260 @@
+<html>
+<head>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script>
+
+$( document ).ready(function() {
+
+	var newSection = '<div class="section">'
+			+	'<div class="meta">'
+			+		'<div class="buttons">'
+			+ 			'<a href="#" class="circle delete">x</a> ' 
+			+ 			'<a href="#" class="img">photo</a> ' 
+			+ 			'<a href="#" class="title">title</a> '
+			//+ 			'<a href="#" class="video">video</a> '
+			//+ 			'<a href="#" class="file">file</a> '
+			+ 			'<input type="file" value="Add an image" class="image-input" name="image">'
+			+ 			'<input type="file" value="Add a file" class="file-input" name="file">'
+			+		'</div>'
+			+	'</div>'
+			+	'<div class="contents editable">'
+			+		'<span class="content edit-target"></span><textarea class="hidden-editor"></textarea>'
+			+	'</div>'
+		+	'</div>';
+
+//            this.$fileInput.on("change.cropit", this.onFileChange.bind(this));
+
+
+    loadFileReader = function(file,target) {
+        var fileReader;
+        fileReader = new FileReader();
+        if (file != null ? file.type.match("image") : void 0) {
+            //this.setImageLoadingClass();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = function(e){
+            
+            	target.append('<img src="' + e.target.result + '" />');
+            	console.log(e.target.result);
+            };//this.onFileReaderLoaded.bind(this);
+            //return fileReader.onerror = this.onFileReaderError.bind(this);
+        } else if (file != null) {
+            //return this.onFileReaderError();
+        }
+    };
+
+	$('.add-section a').click(function(){
+		$('.sections').append(newSection);
+		$('.section').last().find('.editable').focusTextArea();
+		attachSectionBehaviour();
+	});
+
+	function attachSectionBehaviour(){
+		$('.image-input').change(function(){
+			var target = $(this).parents('.section').find('.edit-target');
+			loadFileReader($(this).get(0).files[0], target);
+			//console.log('!');
+		});
+
+		$('a.delete').click(function(){
+			$(this).parents('.section').remove();
+		});
+		$('a.img').click(function(){
+
+			$(this).siblings('.image-input').click();
+
+		});
+
+	    $('.editable').unbind('click').click(function(){
+	    	$(this).focusTextArea();
+	    	//$(this).append('<textarea class="editing" />');
+
+	    });
+	    /*$('.editable:not(.editing)').unbind('click').click(function(){
+	    	$(this).focusTextArea();
+	    	//$(this).append('<textarea class="editing" />');
+
+	    });*/
+	    $('.editable textarea').unbind('blur').blur(function(){
+
+	    	$(this).parents('.editable').blurTextArea();
+
+	    });
+
+		$('.section textarea').unbind('keypress').keypress(function(e){
+			adaptiveheight(this);
+			//var scrollHeight = $(this).get(0).scrollHeight;
+			//console.log(scrollHeight);
+			//if(!isMobile() && e.charCode == 13){
+			//	$(this).height(scrollHeight);
+			//}
+		});
+	}
+
+	$.fn.focusTextArea = function(){
+	    return this.each(function(){
+			var elem = $(this);
+	    	elem.addClass('editing');
+	    	var contentspan = elem.find('.edit-target');
+	    	var contents = contentspan.html();
+	    	var textarea = elem.find('textarea');
+	    	contentspan.hide();
+	    	textarea.show();
+	    	setTimeout(function() {
+				textarea.focus();
+			}, 0);
+	    });
+	};
+
+	$.fn.blurTextArea = function(){
+	    return this.each(function(){
+			var elem = $(this);
+
+
+	    	var textarea = elem.find('textarea');
+
+	    	var contents = textarea.val();
+	    	contents = contents.replace(/\n/g,'<br />');
+	    	var contentspan = elem.find('.edit-target');
+
+	    	elem.removeClass('editing');
+	    	contentspan.html(contents);
+	    	contentspan.show();
+	    	textarea.hide();
+
+	    });
+	};
+
+	
+
+	function adaptiveheight(a) {
+
+		i=0;
+		j=0;
+	    $(a).height(0);
+	    var scrollval = $(a)[0].scrollHeight + 25;
+	    $(a).height(scrollval);
+	    if (parseInt(a.style.height) > $(window).height()) {
+	        if(j==0){
+	            max=a.selectionEnd;
+	        }
+	        j++;
+	        var i =a.selectionEnd;
+	        console.log(i);
+	        if(i >=max){
+	            $(document).scrollTop(parseInt(a.style.height));
+	        }else{
+	            $(document).scrollTop(0);
+	        }
+	    }
+	}
+
+
+});
+</script>
+<style>
+body{
+	margin: 0;
+}
+.editor{
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	font-family: sans-serif;
+	width: 60%;
+	margin: 0 auto;
+	background: #fdfcfb;
+	padding: 10px;
+	overflow: auto;
+}
+
+.editor img{
+	width: 100%;
+	height: auto;
+}
+
+.buttons{
+
+}
+.buttons input{
+	display: none;
+}
+
+a{
+
+	color: #bbb;
+	text-decoration: none;
+}
+a:hover{
+	color: #999;
+
+}
+a.circle{
+	display: inline-block;
+	border-radius: 15px;
+	border: 1px solid;
+	font-size: 25px;
+	width: 30px;
+	height: 30px;
+	text-indent: 8px;
+}
+
+.section{
+	min-height: 50px;
+}
+.section .contents{
+	border: 1px solid #bbb;
+	cursor: text;
+	min-height: 50px;
+}
+.section .contents:hover{
+	border: 1px solid #999;
+}
+.section .contents textarea{
+	display: none;
+}
+.contents .content,
+.contents.editing textarea{
+	width: 100%;
+	display: inline-block;
+	font-family: monospace;
+	font-size: 12px;
+}
+.section.editing textarea:focus{
+	border: 1px solid red;
+}
+.editor .meta{
+	width: 19%;
+	float: left;
+	height: 50px;
+	border: 1px solid #eee;
+}
+.editor .contents{
+	width: 79%;
+	float: left;
+
+}
+.add-section{
+	width: 19%;
+	margin-top: 10px;
+}
+.add-section a{
+	float: right;
+
+}
+.add-section a:hover{
+
+}
+</style>
+</head>
+<body>
+
+	<div class="editor">
+		<h1>Share something...</h1>
+		<div class="sections">
+
+		</div>
+		<div>
+			<div class="add-section"><a class="circle" href="#">+</a></div>
+		</div>
+	</div>
+	
+</body>
