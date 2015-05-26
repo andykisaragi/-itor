@@ -8,13 +8,15 @@ $( document ).ready(function() {
 	var newSection = '<div class="section">'
 			+	'<div class="meta">'
 			+		'<div class="buttons">'
-			+ 			'<a href="#" class="circle delete">x</a> ' 
-			+ 			'<a href="#" class="img">photo</a> ' 
-			+ 			'<a href="#" class="title">title</a> '
+			+ 			'<a href="#" class="circle delete">x</a> '
+			+ 			'<div class="section-type">' 
+			+ 				'<a href="#" class="img">photo</a> ' 
+			+ 				'<a href="#" class="title">title</a> '
+			+ 				'<input type="file" value="Add an image" class="image-input" name="image">'
+			+ 				'<input type="file" value="Add a file" class="file-input" name="file">'
+			+			'</div>'
 			//+ 			'<a href="#" class="video">video</a> '
 			//+ 			'<a href="#" class="file">file</a> '
-			+ 			'<input type="file" value="Add an image" class="image-input" name="image">'
-			+ 			'<input type="file" value="Add a file" class="file-input" name="file">'
 			+		'</div>'
 			+	'</div>'
 			+	'<div class="contents editable">'
@@ -52,6 +54,7 @@ $( document ).ready(function() {
 		$('.image-input').change(function(){
 			var target = $(this).parents('.section').find('.edit-target');
 			loadFileReader($(this).get(0).files[0], target);
+			$(this).parents('.section-type').hide();
 			//console.log('!');
 		});
 
@@ -59,8 +62,16 @@ $( document ).ready(function() {
 			$(this).parents('.section').remove();
 		});
 		$('a.img').click(function(){
-
+			console.log(">");
 			$(this).siblings('.image-input').click();
+
+		});
+
+		$('a.title').click(function(){
+			var section = $(this).parents('.section');
+			section.addClass('title');
+			$(this).parents('.section-type').hide();
+			section.find('.editable').focusTextArea();
 
 		});
 
@@ -117,6 +128,9 @@ $( document ).ready(function() {
 	    	var contentspan = elem.find('.edit-target');
 
 	    	elem.removeClass('editing');
+	    	if(contents!=''){
+	    		$(this).siblings('.meta').find('.section-type').hide();
+	    	}
 	    	contentspan.html(contents);
 	    	contentspan.show();
 	    	textarea.hide();
@@ -218,6 +232,10 @@ a.circle{
 	font-family: monospace;
 	font-size: 12px;
 }
+.section.title .contents .content,
+.section.title .contents.editing textarea{
+	font-size: 18px;
+}
 .section.editing textarea:focus{
 	border: 1px solid red;
 }
@@ -235,8 +253,10 @@ a.circle{
 .add-section{
 	width: 19%;
 	margin-top: 10px;
+	overflow: auto;
 }
-.add-section a{
+.add-section a,
+.save a{
 	float: right;
 
 }
@@ -254,6 +274,7 @@ a.circle{
 		</div>
 		<div>
 			<div class="add-section"><a class="circle" href="#">+</a></div>
+			<div class="save"><a href="#" class="save-btn">save</a></div>
 		</div>
 	</div>
 	
